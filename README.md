@@ -1,6 +1,19 @@
 # map
 **Map lines from stdin to a variable to be used in the commandline**
 
+## Usage
+```
+map [<variable>] '<commandline>'
+  Each line of stdin gets assigned to <variable> (default: m) in succession,
+  and the <commandline> (using the variable) gets executed. In map
+  (unlike mapf), all lines of stdin get mapped regardless of any returncodes.
+
+mapf [<variable>] '<commandline>'
+  Each line of stdin gets assigned to <variable> (default: m) in succession,
+  and the <commandline> (using the variable) gets executed. In mapf
+  (unlike map), the mapping stops on a non-zero returncode of a commandline.
+```
+
 ## Description
 Assigns each line from stdin in sequence to the given variable and then
 executes the commandline (using the variable).
