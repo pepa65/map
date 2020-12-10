@@ -96,24 +96,26 @@ also the conceptual model needed to operate it is simpler.
 
 Let's consider these tasks:
 
-1. Execute a command `foo` on each C file: `ls *.c |map 'foo $m'`
-   - `ls *.c |xargs foo`
-   - `find . -name *.c -maxdepth 1 -exec foo {} \;`
+1. Execute a command `foo` on each C file:
+  - `ls *.c |map 'foo $m'`
+  - `ls *.c |xargs foo`
+  - `find . -name *.c -maxdepth 1 -exec foo {} \;`
 2. Execute commands `foo` and `bar` on each C file:
-   - `ls *.c |map 'foo $m; bar $m'`
-   - `ls *.c |xargs -I % sh -c 'foo %; bar %;'`
-   - `find . -name *.c -maxdepth 1 -exec foo {} \; -exec bar {} \;`
+  - `ls *.c |map 'foo $m; bar $m'`
+  - `ls *.c |xargs -I % sh -c 'foo %; bar %;'`
+  - `find . -name *.c -maxdepth 1 -exec foo {} \; -exec bar {} \;`
 3. Download files from a list of URLs in a file:
-   -  `cat urls |map 'curl -O $m'`
-   - `cat urls |xargs -n 1 curl -O`
+  -  `cat urls |map 'curl -O $m'`
+  - `cat urls |xargs -n 1 curl -O`
 4. Sleep three times for one second and say "done" after each elapsed second:
-   - `printf "1\n1\n1\n" |map 'sleep $m && say done'`
-   - `printf "1\n1\n1\n" |xargs -n 1 -I % sh -c 'sleep % && say done'`
+  - `printf "1\n1\n1\n" |map 'sleep $m && say done'`
+  - `printf "1\n1\n1\n" |xargs -n 1 -I % sh -c 'sleep % && say done'`
 5. Same as number 4, but run the commands in parallel:
-   - `printf "1\n1\n1\n" |map 'sleep $m && say done &'`
-   - `printf "1\n1\n1\n" |xargs -n 1 -P 3 -I % sh -c 'sleep % && say done'`
-   The last three examples are not possible with `find`, because it only
-   operates on file hierarchies.
+  - `printf "1\n1\n1\n" |map 'sleep $m && say done &'`
+  - `printf "1\n1\n1\n" |xargs -n 1 -P 3 -I % sh -c 'sleep % && say done'
+
+Examples 3-5 are not possible with `find`, because it only operates on file
+hierarchies.
 
 When using `map`, the commands don't vary much because the second
 argument is a template for a well known syntax. On the other hand,
@@ -156,4 +158,4 @@ instead of `$m` you would use `"$m"`.
 ## Contributing
 If you find a bug, please create an issue detailing the ways to
 reproduce it. If you have a suggestion, create an issue detailing
-the use case.
+the use case: https://github.com/pepa65/map

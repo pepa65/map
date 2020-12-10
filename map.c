@@ -1,7 +1,7 @@
 // map.c
 //
 // Copyright (c) 2018 - Michel Martens <mail at soveran dot com>
-//               2020 - https://gitlab.com/pepa65/map <pepa65@passchier.net>
+//               2020 - https://github.com/pepa65/map <pepa65@passchier.net>
 //
 // All rights reserved.
 // Redistribution and use in source and binary forms, with or without
