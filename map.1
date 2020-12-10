@@ -1,39 +1,39 @@
-.Dd March 11, 2018
-.Dt MAP 1
-.
-.Sh NAME
-.
-.Nm map
-.Nd Map lines from stdin to commands.
-.
-.Sh SYNOPSIS
-.
-.Nm 
-.Ar variable
-.Ar command
-.
-.Sh DESCRIPTION
-.
-.Nm
-lets you process each line from stdin with a command of your
-choice.
-.
-.Sh EXAMPLES
-.
-Here's an example:
-.Pp
-.Dl $ ls
-.Dl Sy LICENSE   README.md makefile  map.1   map.c
-.Pp
-.Dl $ ls | map f 'echo $f $f'
-.Dl Sy LICENSE LICENSE
-.Dl Sy README.md README.md
-.Dl Sy makefile makefile
-.Dl Sy map.1   map.1
-.Dl Sy map.c   map.c
-.Pp
-Note that the command must be wrapped in single quotes to prevent
-the variable from being expanded by the shell.
-.
-.Sh AUTHOR
-.An Michel Martens Aq mail@soveran.com
+.TH MAP 1 2020-12-10 GNU "User Commands"
+.SH NAME
+\fBmap\fR | \fBmapf\fR -
+Map lines from \fIstdin\fR to a variable in the commandline.
+.SH SYNOPSIS
+\fBmap\fR | \fBmapf\fR \fIvariablename\fR '\fIcommandline\fR'
+.SH DESCRIPTION
+Assigns each line from \fIstdin\fR in sequence to the given variable and
+then executes the \fIcommandline\fR (referencing that \fIvariablename\fR).
+.SH EXIT STATUS
+Returns the exit status of the last commandline that was executed.
+.SH NOTES
+Note that the commandline best be wrapped in single quotes to prevent
+variable expansion, or use other escape mechanisms like \e$variable.
+
+The command \fBmap\fR will keep processing all lines of stdin,
+while \fBmapf\fR will fail after the first non-zero returncode.
+.SH BUGS
+Report bugs at 
+.UR https://gitlab.com/pepa65/map
+.UE
+.SH EXAMPLES
+.I \fB$\fR ls
+.br
+.I LICENSE   README.md makefile  map.1   map.c
+.br
+.I \fB$\fR ls | map f 'echo $f-$f'
+.br
+.I LICENSE-LICENSE
+.br
+.I README.md-README.md
+.br
+.I makefile-makefile
+.br
+.I map.1-map.1
+.br
+.I map.c-map.c
+.SH AUTHOR
+Michel Martens Aq \fImail@soveran.com\fR and \fIpepa65@passchier.net\fR
