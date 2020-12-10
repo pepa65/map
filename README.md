@@ -107,12 +107,12 @@ Let's consider these tasks:
 3. Download files from a list of URLs in a file:
   -  `cat urls |map 'curl -O $m'`
   - `cat urls |xargs -n 1 curl -O`
-4. Sleep three times for one second and say "done" after each elapsed second:
-  - `printf "1\n1\n1\n" |map 'sleep $m && say done'`
-  - `printf "1\n1\n1\n" |xargs -n 1 -I % sh -c 'sleep % && say done'`
+4. Sleep three times for one second and echo "done" after each elapsed second:
+  - `printf "1\n1\n1\n" |map 'sleep $m && echo done'`
+  - `printf "1\n1\n1\n" |xargs -n 1 -I % sh -c 'sleep % && echo done'`
 5. Same as number 4, but run the commands in parallel:
-  - `printf "1\n1\n1\n" |map 'sleep $m && say done &'`
-  - `printf "1\n1\n1\n" |xargs -n 1 -P 3 -I % sh -c 'sleep % && say done'
+  - `printf "1\n1\n1\n" |map 'sleep $m && echo done &'`
+  - `printf "1\n1\n1\n" |xargs -n 1 -P 3 -I % sh -c 'sleep % && echo done'`
 
 Examples 3-5 are not possible with `find`, because it only operates on file
 hierarchies.
