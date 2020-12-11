@@ -1,17 +1,19 @@
 .TH MAP 1 2020-12-10 GNU "User Commands"
 .SH NAME
 \fBmap\fR | \fBmapf\fR -
-Map lines from \fIstdin\fR to a variable in the commandline.
+Map lines from \fIstdin\fR to a commandline.
 .SH SYNOPSIS
-\fBmap\fR | \fBmapf\fR \fIvariablename\fR '\fIcommandline\fR'
+\fBmap\fR | \fBmapf\fR '\fIcommandline\fR'
 .SH DESCRIPTION
-Assigns each line from \fIstdin\fR in sequence to the given variable and
-then executes the \fIcommandline\fR (referencing that \fIvariablename\fR).
+For each line of \fIstdin\fR, variable \fBi\fR is set to the line number
+(starting at 0) and variable \fBm\fR is set to the content of the line,
+and each \fIcommandline\fR (that can use \fB$i\fR and \fB$m\fR)
+gets executed.
 .SH EXIT STATUS
 Returns the exit status of the last commandline that was executed.
 .SH NOTES
-Note that the commandline best be wrapped in single quotes to prevent
-variable expansion, or use other escape mechanisms like \e$variable.
+To prevent variable substitution by the shell, the commandline best be
+wrapped in single quotes.
 
 The command \fBmap\fR will keep processing all lines of stdin,
 while \fBmapf\fR will fail after the first non-zero returncode.
@@ -24,16 +26,16 @@ Report bugs at
 .br
 .I LICENSE   README.md makefile  map.1   map.c
 .br
-.I \fB$\fR ls | map f 'echo $f-$f'
+.I \fB$\fR ls |map 'printf "%d %s-" $i $m; rev <<<"$m"'
 .br
-.I LICENSE-LICENSE
+.I 0 LICENSE-ESNECIL
 .br
-.I README.md-README.md
+.I 1 README.md-dm.EMDAER
 .br
-.I makefile-makefile
+.I 2 makefile-elifekam
 .br
-.I map.1-map.1
+.I 3 map.1-1.pam
 .br
-.I map.c-map.c
+.I 4 map.c-c.pam
 .SH AUTHOR
 Michel Martens Aq \fImail@soveran.com\fR and \fIpepa65@passchier.net\fR

@@ -1,22 +1,24 @@
 # map
-**Map lines from stdin to a variable to be used in the commandline**
+**Map lines from stdin to a commandline**
 
 ## Usage
 ```
-map [<variable>] '<commandline>'
-  Each line of stdin gets assigned to <variable> (default: m) in succession,
-  and the <commandline> (using the variable) gets executed. In map
-  (unlike mapf), all lines of stdin get mapped regardless of any returncodes.
+map '<commandline>'
+  For each line of stdin, variable i is set to the line number (starting at 0)
+  and variable m is set to the content of the line, and each <commandline>
+  (that can refer to $i and $m) gets executed. In map (unlike mapf),
+  all lines of stdin get mapped regardless of any returncodes.
 
-mapf [<variable>] '<commandline>'
-  Each line of stdin gets assigned to <variable> (default: m) in succession,
-  and the <commandline> (using the variable) gets executed. In mapf
-  (unlike map), the mapping stops on a non-zero returncode of a commandline.
+mapf '<commandline>'
+  For each line of stdin, variable i is set to the line number (starting at 0)
+  and variable m is set to the content of the line, and each <commandline>
+  (that can refer to $i and $m) gets executed. In mapf (unlike map),
+  the mapping stops on a non-zero returncode of a commandline.
 ```
 
 ## Description
-Assigns each line from stdin in sequence to the given variable and then
-executes the commandline (using the variable).
+Executes the given commandline for each line from stdin in sequence, while
+assigning the line number to variable i and the line content to variable m.
 
 Example:
 ```console
@@ -25,19 +27,19 @@ LICENSE   README.md makefile  map.1   map.c
 ```
 
 ```console
-$ ls |map var 'echo $var-$var'
-LICENSE-LICENSE
-README.md-README.md
-makefile-makefile
-map.1-map.1
-map.c-map.c
+$ ls |map 'printf "%d %s-" $i $m; rev <<<"$m"'
+0 LICENSE-ESNECIL
+1 README.md-dm.EMDAER
+2 makefile-elifekam
+3 map.1-1.pam
+4 map.c-c.pam
 ```
 
-The second argument (the commandline) best be wrapped in single quotes to
-prevent the variable from being expanded by the shell.
+To prevent variable substitution by the shell, the commandline best be wrapped
+in single quotes.
 
 ## Installation
-Install `map` into `/usr/local/bin` with: `make install`.
+Install `map` and `mapf` into `/usr/local/bin` with: `make install`.
 
 Use `make PREFIX=/some/other/directory install` to install elsewhere.
 Use `make uninstall` to uninstall.
@@ -114,14 +116,10 @@ Let's consider these tasks:
   - `printf "1\n1\n1\n" |map 'sleep $m && echo done &'`
   - `printf "1\n1\n1\n" |xargs -n 1 -P 3 -I % sh -c 'sleep % && echo done'`
 
-Examples 3-5 are not possible with `find`, because it only operates on file
-hierarchies.
+Examples 3-5 cannot be done with `find` as it only operates on file systems.
 
-When using `map`, the commands don't vary much because the second
-argument is a template for a well known syntax. On the other hand,
-there's more variation in the invocations to `xargs` and `find`,
-which means you may need to remember those command line options if
-you want an idiomatic solution.
+When using `map`, the commands use the shell's familiar syntax, so there is
+less cognitive load in needing to remember the syntax of `xargs` or `find`.
 
 As with anything in life, familiarity helps and if you use a tool
 in a certain way over and over it will seem simple to operate, but
@@ -130,8 +128,8 @@ information is needed in each case. I would say the advantage of
 `map` is that it requires less knowledge.
 
 Of course `xargs` and `find` are much larger tools, with a bigger
-feature set. Map has around 20 lines of code. For comparison, here's
-the [source code of GNU xargs][xargs]. No doubt `xargs` will offer
+feature set. Map is tiny. For comparison, here's the
+[source code of GNU xargs][xargs]. No doubt `xargs` will offer
 a lot more features, but so far with `map` I've completely stopped
 using `xargs` and for-loops. Another way to think about `map` vs
 `xargs`: if `map` had been specified in POSIX and `xargs` was just

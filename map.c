@@ -27,47 +27,45 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 
 int main(int argc, char **argv) {
-	char *self = argv[0]+strlen(argv[0])-1;
-	while (*(self-1) != '/') --self;
+	char *self = strrchr(argv[0], '/');
+	if (!self) self = argv[0];
+	else self++;
+
 	int mapf = strcmp("map", self);
-	if (argc == 1 || argc > 3) {
-		printf("Usage: %s [<variable>] '<commandline>'\n", self);
-		printf("  Each line of stdin gets assigned to <variable> (default: m) ");
-		printf("in succession,\n  and the <commandline> (using the variable) ");
-		printf("gets executed. ");
+	if (argc != 2) {
+		printf("Usage: %s '<commandline>'\n", self);
+		printf("  For each line of stdin, variable i is set to the line number (starting at 0)\n  and variable m is set to the content of the line, and each <commandline>  \n  (that can refer to $i and $m) gets executed. ");
 		if (mapf) {
-			printf("In mapf\n  (unlike map), the mapping stops on a non-zero ");
+			printf("In mapf (unlike map),\n  the mapping stops on a non-zero ");
 			printf("returncode of a commandline.\n");
 		} else {
-			printf("In map\n  (unlike mapf), all lines of stdin get mapped ");
+			printf("In map (unlike mapf),\n  all lines of stdin get mapped ");
 			printf("regardless of any returncodes.\n");
 		}
+		if (argc == 1) printf("\nError: missing <commandline>\n");
+		else printf("\nError: too many arguments\n");
 		exit(1);
 	}
+
+	char *cmd = malloc(strlen(argv[1])+16);
+	sprintf(cmd, "/bin/bash -c '%s'", argv[1]);
+
+	int ret = -1, i = 0;
+	char istr[11];
 	char *line = NULL;
 	size_t lcap = 0;
 	ssize_t llen;
-	char *cmd = malloc(65536);
-	char *commandline;
-	char *variable;
-	int ret = 0;
-	if (argc == 2) {
-		variable = "m";
-		commandline = argv[1];
-	} else {
-		variable = argv[1];
-		commandline = argv[2];
-	}
-	sprintf(cmd, "/bin/bash -c '%s'", commandline);
 	while ((llen = getline(&line, &lcap, stdin)) > 0) {
 		if (llen > 1) {
 			if (line[llen-1] == '\n') line[llen-1] = '\0';
-			setenv(variable, line, 1);
-			if (mapf && (ret = system(cmd))) break;
+			setenv("m", line, 1);
+			sprintf(istr, "%d", i++);
+			setenv("i", istr, 1);\
+			ret = system(cmd);
+			if (mapf && ret) break;
 		}
 	}
 	free(cmd);

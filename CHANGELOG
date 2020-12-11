@@ -1,3 +1,7 @@
+2020-12-11 <pepa65@passchier.net>
+- Added variable for line index counter
+- Always use variable names m and i
+
 2020-12-10 <pepa65@passchier.net>
 - Using bash instead of sh for more versatility
 - Supplying mapf command that will stop execution on a non-zero returncode
