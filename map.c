@@ -40,17 +40,15 @@ void help() {
 	printf("Usage:  %s [options] '<commandline>'\n", self);
 	printf("Options:  -i <variable>:  Index variable name, default: ");
 	printf("i\n          -m <variable>:  Mapping variable name, ");
-	printf("default: m\n  For each line of stdin, the index variable is set ");
-	printf("to the line number\n  (starting at 0) and the mapping variable is ");
-	printf("set to the content of the line,\n  and each <commandline> ");
-	printf("(that can use these variables) gets executed. ");
-	if (mapf) {
-		printf("In mapf\n  (unlike map), the mapping stops on a non-zero ");
-		printf("returncode of a commandline.\n");
-	} else {
-		printf("In map\n  (unlike mapf), all lines of stdin get mapped ");
-		printf("regardless of any returncodes.\n");
-	}
+	printf("default: m\n          -s <shell>:     Shell to use for execution, ");
+	printf("default: bash\n          -e:             Stop processing stdin on ");
+	printf("non-zero returncode\n  For each line of stdin, the index variable ");
+	printf("is set to the line number\n  (starting at 0) and the mapping ");
+	printf("variable is set to the content of the line,\n  and each ");
+	printf("<commandline> (that can use these variables) gets executed.\n  ");
+	printf("With -e the mapping stops on a non-zero returncode of a ");
+	printf("commandline,\n  while normally all lines of stdin get mapped, ");
+	printf("regardless of returncodes.\n");
 }
 
 int bashvar(char *var) {
@@ -64,12 +62,18 @@ int main(int argc, char **argv) {
 	self = strrchr(argv[0], '/');
 	if (!self) self = argv[0];
 	else self++;
-	mapf = strcmp("map", self);
 	opterr = 0;
-	int opt, error = 0;
-	char *ivar = "i", *mvar = "m";
-	while ((opt = getopt(argc, argv, "hi:m:")) != -1) {
+
+	int opt, error = 0, exitonerror = 0;
+	char *ivar = "i", *mvar = "m", *shell = "bash";
+	while ((opt = getopt(argc, argv, "hes:i:m:")) != -1) {
 		switch (opt) {
+			case 'e':
+				exitonerror = 1;
+				break;
+			case 's':
+				shell = optarg;
+				break;
 			case 'i':
 			case 'm':
 				if (!bashvar(optarg)) {
@@ -82,7 +86,9 @@ int main(int argc, char **argv) {
 				break;
 			case '?':
 				error = 2;
-				if (optopt == 'i')
+				if (optopt == 's')
+					fprintf(stderr, "Error: Shell name missing after -s\n\n");
+				else if (optopt == 'i')
 					fprintf(stderr, "Error: Index variable name missing after -i\n\n");
 				else if (optopt == 'm')
 					fprintf(stderr, "Error: Mapping variable name missing after -m\n\n");
@@ -120,7 +126,7 @@ int main(int argc, char **argv) {
 	}
 
 	char cmd[strlen(commandline)+16];
-	sprintf(cmd, "/bin/bash -c '%s'", commandline);
+	sprintf(cmd, "%s -c '%s'", shell, commandline);
 
 	int ret = 255, i = 0;
 	char istr[11];
@@ -134,7 +140,7 @@ int main(int argc, char **argv) {
 			sprintf(istr, "%d", i++);
 			setenv(ivar, istr, 1);\
 			ret = system(cmd);
-			if (mapf && ret) break;
+			if (exitonerror && ret) break;
 		}
 	}
 	return ret;

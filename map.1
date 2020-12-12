@@ -1,23 +1,28 @@
 .TH MAP 1 2020-12-10 GNU "User Commands"
 .SH NAME
-\fBmap\fR | \fBmapf\fR -
-Map lines from \fIstdin\fR to a commandline.
+\fBmap\fR - Map lines from stdin to a commandline.
 .SH SYNOPSIS
-\fBmap\fR | \fBmapf\fR '\fIcommandline\fR'
+\fBmap\fR \fI[-i index] [-m mapping] [-s shell] [-e]\fR '\fIcommandline\fR'
+        \fIindex_var\fR:    Index variable name, default: \fBi\fR
+        \fImapping_var\fR:  Mapping variable name, default: \fBm\fR
+        \fIshell\fR:        Shell to use for execution, default: \fBbash\fR
+
+For each line of \fIstdin\fR, the index variable is set to the line number
+(starting at 0) and the mapping variable is set to the line's content
+and each \fIcommandline\fR (that can use these variables) gets executed.
+With \fI-e\fR the mapping stops on a non-zero returncode of a commandline,
+while normally all lines of stdin get mapped, regardless of returncodes.
+
 .SH DESCRIPTION
-For each line of \fIstdin\fR, variable \fBi\fR is set to the line number
-(starting at 0) and variable \fBm\fR is set to the content of the line,
-and each \fIcommandline\fR (that can use \fB$i\fR and \fB$m\fR)
-gets executed.
+Executes the given \fIcommandline\fR for each line from \fIstdin\fR in
+sequence, while assigning the line number to the index variable and the
+line content to the mapping variable.
 .SH EXIT STATUS
 Returns the exit status of the last commandline that was executed,
 or 255 if stdin was empty.
 .SH NOTES
 To prevent variable substitution by the shell, the commandline best be
 wrapped in single quotes.
-
-The command \fBmap\fR will keep processing all lines of stdin,
-while \fBmapf\fR will fail after the first non-zero returncode.
 .SH BUGS
 Report bugs at 
 .UR https://gitlab.com/pepa65/map

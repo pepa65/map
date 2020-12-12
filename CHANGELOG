@@ -1,6 +1,8 @@
 2020-12-12 <pepa65@passchier.net>
 - Allow custom names for mapping and index variables
 - More extensive help and error messages
+- Use -e instead of mapf for exit-on-error
+- Allow specifying the shell to use with -s
 
 2020-12-11 <pepa65@passchier.net>
 - Added variable for line index counter

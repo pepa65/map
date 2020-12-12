@@ -6,18 +6,13 @@
 map [options] '<commandline>'
     Options:  -i <variable>:  Index variable name, default: i
               -m <variable>:  Mapping variable name, default: m
+              -s <shell>:     Shell to use for execution, default: bash
+              -e:             Stop processing stdin on non-zero returncode
   For each line of stdin, the index variable is set to the line number
   (starting at 0) and the mapping variable is set to the content of the line,
-  and each <commandline> (that can use these variables) gets executed. In map
-  (unlike mapf), all lines of stdin get mapped regardless of any returncodes.
-
-mapf [options] '<commandline>'
-    Options:  -i <variable>:  Index variable name, default: i
-              -m <variable>:  Mapping variable name, default: m
-  For each line of stdin, the index variable is set to the line number
-  (starting at 0) and the mapping variable is set to the content of the line,
-  and each <commandline> (that can use these variables) gets executed. In mapf
-  (unlike map), the mapping stops on a non-zero returncode of a commandline.
+  and each <commandline> (that can use these variables) gets executed.
+  With -e the mapping stops on a non-zero returncode of a commandline, while
+  normally all lines of stdin get mapped, regardless of returncodes.
 ```
 
 ## Description
@@ -44,7 +39,7 @@ To prevent variable substitution by the shell, the commandline best be wrapped
 in single quotes.
 
 ## Installation
-Install `map` and `mapf` into `/usr/local/bin` with: `make install`.
+Install `map` into `/usr/local/bin` with: `make install`.
 
 Use `make PREFIX=/some/other/directory install` to install elsewhere.
 Use `make uninstall` to uninstall.
