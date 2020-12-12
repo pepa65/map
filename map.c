@@ -28,32 +28,101 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <ctype.h>
+
+char *self;
+int mapf;
+extern char *optarg;
+extern int optind, optopt, opterr;
+
+void help() {
+	printf("Usage:  %s [options] '<commandline>'\n", self);
+	printf("Options:  -i <variable>:  Index variable name, default: ");
+	printf("i\n          -m <variable>:  Mapping variable name, ");
+	printf("default: m\n  For each line of stdin, the index variable is set ");
+	printf("to the line number\n  (starting at 0) and the mapping variable is ");
+	printf("set to the content of the line,\n  and each <commandline> ");
+	printf("(that can use these variables) gets executed. ");
+	if (mapf) {
+		printf("In mapf\n  (unlike map), the mapping stops on a non-zero ");
+		printf("returncode of a commandline.\n");
+	} else {
+		printf("In map\n  (unlike mapf), all lines of stdin get mapped ");
+		printf("regardless of any returncodes.\n");
+	}
+}
+
+int bashvar(char *var) {
+	if (*var != '_' && !isalpha(*var)) return 0;
+	while (*(++var))
+		if (*var != '_' && !isalnum(*var)) return 0;
+	return 1;
+}
 
 int main(int argc, char **argv) {
-	char *self = strrchr(argv[0], '/');
+	self = strrchr(argv[0], '/');
 	if (!self) self = argv[0];
 	else self++;
-
-	int mapf = strcmp("map", self);
-	if (argc != 2) {
-		printf("Usage: %s '<commandline>'\n", self);
-		printf("  For each line of stdin, variable i is set to the line number (starting at 0)\n  and variable m is set to the content of the line, and each <commandline>  \n  (that can refer to $i and $m) gets executed. ");
-		if (mapf) {
-			printf("In mapf (unlike map),\n  the mapping stops on a non-zero ");
-			printf("returncode of a commandline.\n");
-		} else {
-			printf("In map (unlike mapf),\n  all lines of stdin get mapped ");
-			printf("regardless of any returncodes.\n");
+	mapf = strcmp("map", self);
+	opterr = 0;
+	int opt, error = 0;
+	char *ivar = "i", *mvar = "m";
+	while ((opt = getopt(argc, argv, "hi:m:")) != -1) {
+		switch (opt) {
+			case 'i':
+			case 'm':
+				if (!bashvar(optarg)) {
+					fprintf(stderr, "Error: Invalid variable name: '%s'\n\n", optarg);
+					error = 1;
+					break;
+				}
+				if (opt == 'm') mvar = optarg;
+				else ivar = optarg;
+				break;
+			case '?':
+				error = 2;
+				if (optopt == 'i')
+					fprintf(stderr, "Error: Index variable name missing after -i\n\n");
+				else if (optopt == 'm')
+					fprintf(stderr, "Error: Mapping variable name missing after -m\n\n");
+				else
+					fprintf(stderr, "Error: unknown flag -%c\n\n", optopt);
+				break;
+			case 'h':
+				help();
+				 return 0;
+			default:
+				error = 3;
+				fprintf(stderr, "Error: missing <commandline> argument\n\n");
 		}
-		if (argc == 1) printf("\nError: missing <commandline>\n");
-		else printf("\nError: too many arguments\n");
-		exit(1);
+	}
+	if (!strcmp(ivar, mvar)) {
+		error = 4;
+		fprintf(stderr, "Error: index and mapping variable same: '%s'\n\n", ivar);
+	}
+	if (error) {
+		help();
+		return error;
 	}
 
-	char *cmd = malloc(strlen(argv[1])+16);
-	sprintf(cmd, "/bin/bash -c '%s'", argv[1]);
+	char *commandline;
+	if (optind == argc) {
+		fprintf(stderr, "Error: missing <commandline> argument\n\n");
+		help();
+		return 5;
+	}
+	else commandline = argv[optind++];
+	if (optind < argc) {
+		fprintf(stderr, "Error: too many arguments\n\n");
+		help();
+		return 6;
+	}
 
-	int ret = -1, i = 0;
+	char cmd[strlen(commandline)+16];
+	sprintf(cmd, "/bin/bash -c '%s'", commandline);
+
+	int ret = 255, i = 0;
 	char istr[11];
 	char *line = NULL;
 	size_t lcap = 0;
@@ -61,13 +130,12 @@ int main(int argc, char **argv) {
 	while ((llen = getline(&line, &lcap, stdin)) > 0) {
 		if (llen > 1) {
 			if (line[llen-1] == '\n') line[llen-1] = '\0';
-			setenv("m", line, 1);
+			setenv(mvar, line, 1);
 			sprintf(istr, "%d", i++);
-			setenv("i", istr, 1);\
+			setenv(ivar, istr, 1);\
 			ret = system(cmd);
 			if (mapf && ret) break;
 		}
 	}
-	free(cmd);
 	return ret;
 }

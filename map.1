@@ -10,7 +10,8 @@ For each line of \fIstdin\fR, variable \fBi\fR is set to the line number
 and each \fIcommandline\fR (that can use \fB$i\fR and \fB$m\fR)
 gets executed.
 .SH EXIT STATUS
-Returns the exit status of the last commandline that was executed.
+Returns the exit status of the last commandline that was executed,
+or 255 if stdin was empty.
 .SH NOTES
 To prevent variable substitution by the shell, the commandline best be
 wrapped in single quotes.

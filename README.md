@@ -3,22 +3,27 @@
 
 ## Usage
 ```
-map '<commandline>'
-  For each line of stdin, variable i is set to the line number (starting at 0)
-  and variable m is set to the content of the line, and each <commandline>
-  (that can refer to $i and $m) gets executed. In map (unlike mapf),
-  all lines of stdin get mapped regardless of any returncodes.
+map [options] '<commandline>'
+    Options:  -i <variable>:  Index variable name, default: i
+              -m <variable>:  Mapping variable name, default: m
+  For each line of stdin, the index variable is set to the line number
+  (starting at 0) and the mapping variable is set to the content of the line,
+  and each <commandline> (that can use these variables) gets executed. In map
+  (unlike mapf), all lines of stdin get mapped regardless of any returncodes.
 
-mapf '<commandline>'
-  For each line of stdin, variable i is set to the line number (starting at 0)
-  and variable m is set to the content of the line, and each <commandline>
-  (that can refer to $i and $m) gets executed. In mapf (unlike map),
-  the mapping stops on a non-zero returncode of a commandline.
+mapf [options] '<commandline>'
+    Options:  -i <variable>:  Index variable name, default: i
+              -m <variable>:  Mapping variable name, default: m
+  For each line of stdin, the index variable is set to the line number
+  (starting at 0) and the mapping variable is set to the content of the line,
+  and each <commandline> (that can use these variables) gets executed. In mapf
+  (unlike map), the mapping stops on a non-zero returncode of a commandline.
 ```
 
 ## Description
 Executes the given commandline for each line from stdin in sequence, while
-assigning the line number to variable i and the line content to variable m.
+assigning the line number to the index variable and the line content to the
+mapping variable.
 
 Example:
 ```console
@@ -145,15 +150,9 @@ stdin. In that regard, it is very generic because a line can represent
 anything.
 
 ## Known issues
-In the examples above I frequently use the output of `ls`. In my
-projects, filenames don't contain spaces, newlines, or other special
-characters because I find them inconvenient, even though they are
-valid. As `map` works on lines, filenames that contain newlines
-should be handled separately. For filenames that contain whitespace,
-the common solution is to wrap the variable in double quotes, so
-instead of `$m` you would use `"$m"`.
+As `map` works on lines, filenames that contain newlines will not be handled
+well. As in most shells, filenames with whitespace might need to be wrapped
+in double quotes (instead of `$m` use `"$m"`).
 
 ## Contributing
-If you find a bug, please create an issue detailing the ways to
-reproduce it. If you have a suggestion, create an issue detailing
-the use case: https://github.com/pepa65/map
+Please be in touch with ideas or bugs at: https://github.com/pepa65/map
